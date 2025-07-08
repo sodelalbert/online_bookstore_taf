@@ -1,0 +1,32 @@
+[project]
+name = "online-bookstore-taf"
+version = "0.1.0"
+description = "Sample Bookstore Application Testing Framework"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "black>=25.1.0",
+    "mypy>=1.16.1",
+    "pylint>=3.3.7",
+    "pytest>=8.4.1",
+    "pytest-html>=4.1.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+addopts = "--html=reports/report.html --self-contained-html"
+
+[tool.mypy]
+
+disallow_untyped_defs = true # Require type annotations for all functions
+disallow_untyped_calls = true # Require type annotations for all calls
+disallow_incomplete_defs = true # Disallow functions without type annotations
+warn_return_any = true # Warn about missing return type annotations
+strict_optional = true # Be strict about optional types
+warn_unused_ignores = true # Warn about unused ignores
+warn_redundant_casts = true # Treat warnings as errors
+check_untyped_defs = true # Additional strict settings
+no_implicit_optional = true
+
+[tool.pylint]
+ignore = [".venv"]

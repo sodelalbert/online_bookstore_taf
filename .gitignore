@@ -1,0 +1,9 @@
+/reports/*.html
+*.pyc
+__pycache__
+*.pyo
+*.pyd
+.venv
+venv
+
+uv.lock
