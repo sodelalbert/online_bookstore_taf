@@ -53,3 +53,20 @@ jobs:
 
       - name: Run MyPy
         run: uv run mypy .
+
+  Testing:
+    runs-on: ubuntu-latest
+    needs: [Formatting, Linting, Type-Checking]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run Pytest
+        run: uv run pytest
