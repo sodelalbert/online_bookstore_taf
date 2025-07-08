@@ -71,6 +71,11 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      - name: Copy Sample .env
+        # Secret Parameters are managed by GitHub
+        run: |
+          cp samples/.env_sample .env
+
       - name: Run Pytest
         run: uv run pytest
 
