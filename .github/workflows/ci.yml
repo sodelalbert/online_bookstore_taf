@@ -58,6 +58,8 @@ jobs:
     runs-on: ubuntu-latest
     # needs: [Formatting, Linting, Type-Checking]
     needs: [Formatting, Type-Checking]
+    env:
+      BOOKS_API_BASE_URL: ${{ secrets.BOOKS_API_BASE_URL }}
 
     steps:
       - name: Checkout code
@@ -68,13 +70,6 @@ jobs:
 
       - name: Install dependencies
         run: uv sync
-
-      - name: Base URL Check
-        run: |
-          if [ -z "$BOOKS_API_BASE_URL" ]; then
-            echo "Error: BOOKS_API_BASE_URL is not set."
-            exit 1
-          fi
 
       - name: Run Pytest
         run: uv run pytest
