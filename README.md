@@ -1,6 +1,6 @@
 # Online Bookstore - Test Automation Framework
 
-[![CI](https://github.com/sodelalbert/online_bookstore_taf/actions/workflows/ci.yml/badge.svg)](https://github.com/sodelalbert/online_bookstore_taf/actions/workflows/ci.yml)
+[![CI/CD](https://github.com/sodelalbert/online_bookstore_taf/actions/workflows/ci.yml/badge.svg)](https://github.com/sodelalbert/online_bookstore_taf/actions/workflows/ci.yml)
 
 - Technologies used.
 
