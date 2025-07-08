@@ -14,15 +14,14 @@ class BooksClient(BaseClient):
     Client for Books API endpoints.
     """
 
-    def __init__(self, base_url: str = os.getenv("BOOKS_API_BASE_URL")):
+    def __init__(self) -> None:
         """
         Initialize Books API client.
         """
-        super().__init__(base_url)
+        super().__init__()
         self.books_endpoint = (
             f"/api/{os.getenv("API_VERSION")}/{os.getenv("BOOKS_API_ENDPOINT")}"
         )
-        pass
 
     def get_all_books(self) -> requests.Response:
         """

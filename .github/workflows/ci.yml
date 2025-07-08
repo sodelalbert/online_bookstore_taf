@@ -68,6 +68,13 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      - name: Base URL Check
+        run: |
+          if [ -z "$BOOKS_API_BASE_URL" ]; then
+            echo "Error: BOOKS_API_BASE_URL is not set."
+            exit 1
+          fi
+
       - name: Run Pytest
         run: uv run pytest
 

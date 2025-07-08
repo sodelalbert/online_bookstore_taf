@@ -3,6 +3,7 @@ HTTP client base abstract class for API testing.
 """
 
 from abc import ABC
+import os
 import requests
 from typing import Dict, Any, Optional
 from dotenv import load_dotenv
@@ -13,7 +14,7 @@ class BaseClient(ABC):
     HTTP Base Client wrapper for API testing.
     """
 
-    def __init__(self, base_url: str, timeout: int = 30):
+    def __init__(self, timeout: int = 30):
         """
         Initialize API client and load configuration files.
 
@@ -24,7 +25,13 @@ class BaseClient(ABC):
 
         load_dotenv()
 
-        self.base_url = base_url.rstrip("/")
+        self.base_url = os.getenv("BOOKS_API_BASE_URL")
+
+        if not self.base_url:
+            raise ValueError(
+                "Base URL must be set in environment variables (.env) file."
+            )
+
         self.timeout = timeout
         self.session = requests.Session()
         self._setup_session()

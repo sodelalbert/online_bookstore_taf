@@ -2,10 +2,11 @@
 Global pytest configuration and fixtures.
 """
 
-from typing import Generator, List
+from typing import Generator
 import pytest
 from src.api.books_client import BooksClient
-from src.utils.data_factory import BookDataFactory
+
+# from src.utils.data_factory import BookDataFactory
 
 
 @pytest.fixture(scope="session")
