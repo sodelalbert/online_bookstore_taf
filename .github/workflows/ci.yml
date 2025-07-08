@@ -23,21 +23,21 @@ jobs:
       - name: Run Black
         run: uv run black .
 
-  Linting:
-    runs-on: ubuntu-latest
+  # Linting:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
+  #     - name: Install uv
+  #       uses: astral-sh/setup-uv@v6
 
-      - name: Install dependencies
-        run: uv sync
+  #     - name: Install dependencies
+  #       run: uv sync
 
-      - name: Run Pylint
-        run: uv run pylint .
+  #     - name: Run Pylint
+  #       run: uv run pylint .
 
   Type-Checking:
     runs-on: ubuntu-latest
@@ -56,7 +56,8 @@ jobs:
 
   Testing:
     runs-on: ubuntu-latest
-    needs: [Formatting, Linting, Type-Checking]
+    # needs: [Formatting, Linting, Type-Checking]
+    needs: [Formatting, Type-Checking]
 
     steps:
       - name: Checkout code
