@@ -1,11 +1,14 @@
 #!/bin/bash
 
 # Set reports directory variable
-REPORTS_DIR="reports"
 
 black_status=0
 pylint_status=0
 mypy_status=0
+
+echo "Running static code analysis..."
+
+REPORTS_DIR="reports"
 
 # Run Black
 uv run black . > "$REPORTS_DIR/black_output.txt" 2>&1
