@@ -15,6 +15,13 @@ dependencies = [
 [tool.pytest.ini_options]
 testpaths = ["test"]
 addopts = "--html=reports/report.html --self-contained-html"
+markers = [
+    "smoke: Smoke tests for quick validation",
+    
+    "api: API integration tests",
+    "ui: User interface tests",
+    "e2e: End-to-end tests",
+]
 
 [tool.mypy]
 

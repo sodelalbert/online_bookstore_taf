@@ -4,6 +4,12 @@
 
 ## Project Structure
 
+- markers: api, ui, e2e, smoke
+
+```bash
+uv run pytest -m api
+```
+
 ## Installation & Configuration
 
 ```bash
