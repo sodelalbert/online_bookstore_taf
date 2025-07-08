@@ -10,3 +10,5 @@ venv
 *.egg
 
 uv.lock
+.idea
+.env
