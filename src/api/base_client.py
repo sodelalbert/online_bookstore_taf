@@ -29,7 +29,7 @@ class BaseClient(ABC):
 
         if not self.base_url:
             raise ValueError(
-                "Base URL must be set in environment variables (.env) file."
+                "Base URL must be set in environment variables (.env) file in project root."
             )
 
         self.timeout = timeout
