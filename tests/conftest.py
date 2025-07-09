@@ -5,6 +5,7 @@ Global pytest configuration and fixtures.
 from typing import Generator
 import pytest
 from src.api.books_client import BooksClient
+from src.api.authors_client import AuthorsClient
 
 # from src.utils.data_factory import BookDataFactory
 
@@ -18,6 +19,18 @@ def books_api_client() -> Generator[BooksClient, None, None]:
         BooksAPIClient instance
     """
     client = BooksClient()
+    yield client
+
+
+@pytest.fixture(scope="session")
+def authors_api_client() -> Generator[AuthorsClient, None, None]:
+    """
+    Create Authors API client for testing.
+
+    Yields:
+        AuthorsClient instance
+    """
+    client = AuthorsClient()
     yield client
 
 

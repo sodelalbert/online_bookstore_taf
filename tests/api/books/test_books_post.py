@@ -5,8 +5,8 @@ Tests for Books API - POST endpoints.
 import pytest
 from jsonschema import validate
 from src.api.books_client import BooksClient
-from src.data.book_data import BookData
-from src.models.book_models import BookModels
+from src.data.books_data import BooksData
+from src.models.books_models import BookModels
 
 
 @pytest.mark.api
@@ -24,7 +24,7 @@ class TestPostBooks:
         """
 
         # Arrange
-        test_book_data = BookData.sample_book_data
+        test_book_data = BooksData.sample_book_data
 
         # Act
         response = books_api_client.create_book(test_book_data)
@@ -51,7 +51,7 @@ class TestPostBooks:
         """
 
         # Arrange
-        invalid_book_data = BookData.invalid_book_data
+        invalid_book_data = BooksData.invalid_book_data
 
         # Act
         response = books_api_client.create_book(invalid_book_data)

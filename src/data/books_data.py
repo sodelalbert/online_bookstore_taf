@@ -1,12 +1,12 @@
 """
-Book Data Module
+Book Data Class for API Tests
 """
 
 from dataclasses import dataclass
 
 
 @dataclass
-class BookData:
+class BooksData:
     """
     Data class for book data used in API tests.
     """

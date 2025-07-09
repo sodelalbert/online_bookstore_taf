@@ -5,7 +5,7 @@ Tests for Books API - GET endpoints.
 import pytest
 from jsonschema import validate
 from src.api.books_client import BooksClient
-from src.models.book_models import BookModels
+from src.models.books_models import BookModels
 
 
 @pytest.mark.api
