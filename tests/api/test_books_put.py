@@ -41,7 +41,7 @@ class TestPutBooks:
         assert update_response.status_code == 200
         assert "application/json" in update_response.headers.get("content-type", "")
         updated_book_response = update_response.json()
-        
+
         validate(updated_book_response, BookModels.book_response_model)
 
         assert updated_book_response["id"] == book_id

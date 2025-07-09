@@ -38,9 +38,8 @@ class TestDeleteBooks:
         assert delete_response.reason == "OK"
         assert delete_response.content == b""  # Assert that there is no JSON payload
 
-
         get_book_response = books_api_client.get_book_by_id(book_id)
         assert get_book_response.status_code == 404
-        assert get_book_response.reason == "Not Found"  
+        assert get_book_response.reason == "Not Found"
         not_found_response = get_book_response.json()
         validate(not_found_response, BookModels.book_not_found_response_model)
