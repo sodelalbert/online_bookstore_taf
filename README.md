@@ -6,7 +6,7 @@ Environment variables are managed securely using a `.env` file (not included in 
 
 Thanks to its modular project structure, the framework can be easily extended to support UI and end-to-end (e2e) tests in addition to API testing.
 
-[![CI/CD](https://github.com/sodelalbert/online_bookstore_taf/actions/workflows/ci.yml/badge.svg)](https://github.com/sodelalbert/online_bookstore_taf/actions/workflows/ci.yml)
+[![CI/CD](https://github.com/sodelalbert/online_bookstore_taf/actions/workflows/ci.yml/badge.svg)](https://github.com/sodelalbert/online_bookstore_taf/actions/workflows/ci.yml) _Note: CI jobs may currently fail due to defects detected during automated testing._
 
 ## 🗂️ Project Structure
 
