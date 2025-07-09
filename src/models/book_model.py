@@ -16,16 +16,16 @@ class BookModel:
     id: Optional[int] = None
     title: str = ""
     description: str = ""
-    pageCount: int = 0
+    page_count: int = 0
     excerpt: str = ""
-    publishDate: Optional[str] = None
+    publish_date: Optional[str] = None
 
     def __post_init__(self) -> None:
         """
         Post-initialization validation.
         """
-        if self.publishDate is None:
-            self.publishDate = datetime.now().isoformat()
+        if self.publish_date is None:
+            self.publish_date = datetime.now().isoformat()
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -48,48 +48,3 @@ class BookModel:
             Book instance
         """
         return cls(**data)
-
-    @classmethod
-    def create_sample_book(
-        cls,
-        title: str = "Sample Book",
-        description: str = "A sample book for testing",
-        page_count: int = 100,
-        excerpt: str = "This is a sample excerpt",
-    ) -> "BookModel":
-        """Create a sample book for testing.
-
-        Args:
-            title: Book title
-            description: Book description
-            page_count: Number of pages
-            excerpt: Book excerpt
-
-        Returns:
-            Book instance with sample data
-        """
-        return cls(
-            title=title, description=description, pageCount=page_count, excerpt=excerpt
-        )
-
-    def is_valid(self) -> bool:
-        """Check if book data is valid.
-
-        Returns:
-            True if book data is valid
-        """
-        return (
-            bool(self.title.strip())
-            and self.pageCount >= 0
-            and bool(self.description.strip())
-        )
-
-    def update_fields(self, **kwargs: Any) -> None:
-        """Update book fields.
-
-        Args:
-            **kwargs: Fields to update
-        """
-        for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)

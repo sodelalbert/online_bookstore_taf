@@ -15,7 +15,7 @@ uv run black . > "$REPORTS_DIR/black_output.txt" 2>&1
 black_status=$?
 
 # Run Pylint
-uv run pylint **/*.py > "$REPORTS_DIR/pylint_report.txt" 2>&1
+uv run pylint $(find . -type f -name "*.py" -not -path "./.venv/*") > "$REPORTS_DIR/pylint_report.txt" 2>&1
 pylint_status=$?
 
 # Run Mypy

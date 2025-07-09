@@ -8,15 +8,13 @@
 
 - markers: api, ui, e2e, smoke
 
-```bash
-uv run pytest -m api
-```
-
 ## Installation & Configuration
 
 ```bash
 curl -Ls https://astral.sh/uv/install.sh | sh
 ```
+
+- samples .env and how it's managed via GitHub
 
 ## Running Test Cases
 

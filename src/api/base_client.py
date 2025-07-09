@@ -3,9 +3,9 @@ HTTP client base abstract class for API testing.
 """
 
 from abc import ABC
+from typing import Dict, Any, Optional
 import os
 import requests
-from typing import Dict, Any, Optional
 from dotenv import load_dotenv
 
 
@@ -73,20 +73,16 @@ class BaseClient(ABC):
         if headers:
             request_headers.update(headers)
 
-        try:
-            response = self.session.request(
-                method=method,
-                url=url,
-                json=data,
-                params=params,
-                headers=request_headers,
-                timeout=self.timeout,
-            )
+        response = self.session.request(
+            method=method,
+            url=url,
+            json=data,
+            params=params,
+            headers=request_headers,
+            timeout=self.timeout,
+        )
 
-            return response
-
-        except requests.exceptions.RequestException as e:
-            raise
+        return response
 
     def get(
         self, endpoint: str, params: Optional[dict[str, Any]] = None

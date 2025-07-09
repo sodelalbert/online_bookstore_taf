@@ -3,10 +3,9 @@ Books API client with specific endpoints.
 """
 
 import os
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 import requests
 from src.api.base_client import BaseClient
-from src.models.book_model import BookModel
 
 
 class BooksClient(BaseClient):
@@ -62,28 +61,3 @@ class BooksClient(BaseClient):
             book_id: Book ID to delete
         """
         return self.delete(f"{self.books_endpoint}/{book_id}")
-
-    # TODO: Is this needed?????
-
-    def create_book_from_model(self, book: BookModel) -> requests.Response:
-        """
-        Create book from Book model.
-
-        Args:
-            book: Book model instance
-
-        """
-        return self.create_book(book.to_dict())
-
-    def update_book_from_model(
-        self, book_id: int, book: BookModel
-    ) -> requests.Response:
-        """
-        Update book from Book model.
-
-        Args:
-            book_id: Book ID to update
-            book: Book model instance
-
-        """
-        return self.update_book(book_id, book.to_dict())
