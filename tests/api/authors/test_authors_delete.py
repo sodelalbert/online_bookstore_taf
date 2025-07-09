@@ -16,7 +16,7 @@ class TestDeleteAuthors:
     """
 
     @pytest.mark.smoke
-    def test_delete_author_success(self, authors_api_client: AuthorsClient) -> None:
+    def test_delete_author_success(self, authors_api_client) -> None:
         """
         Test successful deletion of author.
 
