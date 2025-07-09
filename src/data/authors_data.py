@@ -2,14 +2,35 @@
 Authors Data Class for API Tests
 """
 
-from typing import Dict, Any
+from dataclasses import dataclass
 
 
+@dataclass
 class AuthorsData:
     """
-    Data class for book data used in API tests.
+    Data class for author data used in API tests.
     """
 
-    author_response_model: Dict[str, Any] = {}
+    sample_author_data = {
+        "idBook": 1,
+        "firstName": "Test Author",
+        "lastName": "Test Last Name",
+    }
 
-    author_not_found_response_model: Dict[str, Any] = {}
+    updated_author_data = {
+        "idBook": 1,
+        "firstName": "Updated Author",
+        "lastName": "Updated Last Name",
+    }
+
+    invalid_author_data = {
+        "idBook": -100,
+        "firstName": "",
+        "lastName": "",
+    }
+
+    sample_author_data_different_book = {
+        "idBook": 2,
+        "firstName": "Another Author",
+        "lastName": "Another Last Name",
+    }

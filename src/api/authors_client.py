@@ -19,7 +19,7 @@ class AuthorsClient(BaseClient):
         """
         super().__init__()
         self.authors_endpoint = (
-            f"/api/{os.getenv('API_VERSION')}/{os.getenv("AUTHORS_API_ENDPOINT")}"
+            f"/api/{os.getenv('API_VERSION')}/{os.getenv('AUTHORS_API_ENDPOINT')}"
         )
 
     def get_all_authors(self) -> requests.Response:
