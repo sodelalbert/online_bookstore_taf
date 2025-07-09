@@ -29,7 +29,7 @@ class BooksClient(BaseClient):
         """
         return self.get(self.books_endpoint)
 
-    def get_book_by_id(self, book_id: int) -> requests.Response:
+    def get_book_by_id(self, book_id: int | str) -> requests.Response:
         """
         Get book by ID.
 

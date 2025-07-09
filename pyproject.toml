@@ -7,13 +7,14 @@ requires-python = ">=3.13"
 dependencies = [
     "black>=25.1.0",
     "dotenv>=0.9.9",
+    "jsonschema>=4.24.0",
     "mypy>=1.16.1",
     "pylint>=3.3.7",
     "pytest>=8.4.1",
     "pytest-html>=4.1.1",
     "requests>=2.32.4",
+    "types-jsonschema>=4.24.0",
     "types-requests>=2.32.4",
-    "vulture>=2.14",
 ]
 
 [tool.pytest.ini_options]
@@ -41,4 +42,3 @@ no_implicit_optional = true
 
 [tool.pylint]
 ignore = [".venv"]
-disable = ["R0913", "R0917", "W0511"]

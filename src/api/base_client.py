@@ -44,6 +44,7 @@ class BaseClient(ABC):
             {"Content-Type": "application/json", "Accept": "application/json"}
         )
 
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def _make_request(
         self,
         method: str,
