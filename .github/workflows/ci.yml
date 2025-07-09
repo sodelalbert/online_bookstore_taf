@@ -55,8 +55,8 @@ jobs:
       - name: Run MyPy
         run: uv run mypy .
 
-  Smoke-Test:
-    name: Smoke Test
+  Smoke-Tests:
+    name: Smoke Tests
     runs-on: ubuntu-latest
     needs: [Formatting, Linting, Type-Checking]
     env:
@@ -87,10 +87,10 @@ jobs:
           name: smoke-test-report
           path: reports/smoke.html
 
-  Regression-Test:
-    name: Regression Test
+  API-Regrsssion-Test:
+    name: API Regrsssion Tests
     runs-on: ubuntu-latest
-    needs: [Smoke-Test, Formatting, Linting, Type-Checking]
+    needs: [Smoke-Tests, Formatting, Linting, Type-Checking]
     env:
       BOOKS_API_BASE_URL: ${{ secrets.BOOKS_API_BASE_URL }}
 
@@ -110,11 +110,11 @@ jobs:
           cp samples/.env.sample .env
 
       - name: Run Pytest
-        run: uv run pytest -m "not smoke" --html=reports/regression.html
+        run: uv run pytest -m api --html=reports/api.html
 
       - name: Upload Pytest HTML Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: regression-test-report
-          path: reports/regression.html
+          name: api-test-report
+          path: reports/api.html
