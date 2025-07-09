@@ -36,7 +36,7 @@ online_bookstore_taf/
 
 This project uses [`uv`](https://github.com/astral-sh/uv) for Python package management instead of `pip`. `uv` is a modern, high-performance installer that speeds up dependency installation, ensures deterministic environments through dependency locking, and simplifies setup with built-in virtual environment management. All dependencies are defined in `pyproject.toml`, and you can install them or run tests directly using `uv`, making development and CI/CD workflows faster and more reliable.
 
-To run this project, first install `uv` on your system:
+To be able to use this project, first install `uv` on your system:
 
 ```bash
 curl -Ls https://astral.sh/uv/install.sh | sh
@@ -61,6 +61,8 @@ This framework streamlines setup by automatically handling Python and dependency
    All dependencies listed in `pyproject.toml` are installed automatically when you run `uv`. No need to manually manage packages—just run your tests and let `uv` handle the rest!
 
 This automation reduces setup errors and ensures every contributor works in a consistent environment.
+
+To install correct python version, dependencies and execute all test cases execute following command:
 
 ```bash
 uv run pytest
