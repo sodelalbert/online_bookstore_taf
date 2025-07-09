@@ -14,7 +14,8 @@
 curl -Ls https://astral.sh/uv/install.sh | sh
 ```
 
-- samples .env and how it's managed via GitHub
+- samples .env, Env is not part of the repo, provide test URL to make it work
+- and how it's managed via GitHub
 
 ## Running Test Cases
 

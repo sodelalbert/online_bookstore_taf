@@ -41,4 +41,4 @@ no_implicit_optional = true
 
 [tool.pylint]
 ignore = [".venv"]
-disable = ["R0903"]
+disable = ["R0903", "R0801"]
