@@ -29,7 +29,6 @@ markers = [
 ]
 
 [tool.mypy]
-
 disallow_untyped_defs = true # Require type annotations for all functions
 disallow_untyped_calls = true # Require type annotations for all calls
 disallow_incomplete_defs = true # Disallow functions without type annotations

@@ -6,12 +6,12 @@ from dataclasses import dataclass
 
 
 @dataclass
-class BookModel:
+class BookModels:
     """
     JSON object representation of a book for API testing.
     """
 
-    book_response_schema = {
+    book_response_model = {
         "type": "object",
         "items": {
             "type": "object",
@@ -27,7 +27,7 @@ class BookModel:
         },
     }
 
-    book_not_found_response_schema = {
+    book_not_found_response_model = {
         "type": "object",
         "properties": {
             "type": {"type": "string"},
