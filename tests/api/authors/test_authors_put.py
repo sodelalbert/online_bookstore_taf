@@ -94,7 +94,7 @@ class TestPutAuthors:
 
     @pytest.mark.parametrize("invalid_id", [0, -1, -100, "abc", 1.5])
     def test_put_author_invalid_id_types(
-        self, authors_api_client: AuthorsClient, invalid_id
+        self, authors_api_client: AuthorsClient, invalid_id: int | str
     ) -> None:
         """
         Test update of author with invalid ID types.

@@ -62,7 +62,7 @@ class AuthorsClient(BaseClient):
         return self.post(self.authors_endpoint, data=author_data)
 
     def update_author(
-        self, author_id: int, author_data: Dict[str, Any]
+        self, author_id: int | str, author_data: Dict[str, Any]
     ) -> requests.Response:
         """
         Update existing author.
