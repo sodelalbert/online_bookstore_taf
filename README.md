@@ -48,7 +48,7 @@ The project uses a `.env` file in the **root directory** to manage environment-s
 cp samples/.env.sample .env
 ```
 
-‼️ After copying make sure that you updated `BOOKS_API_BASE_URL` in `.env` located in project root ‼️
+‼️ After copying make sure that you configured missing variavbles i.e `BOOKS_API_BASE_URL = "https://testapifwk.com/"` in `.env` located in project root ‼️
 
 ## 🚀 Running Test Cases
 
