@@ -21,7 +21,9 @@ class TestDeleteAuthors:
     """
 
     @pytest.mark.smoke
-    def test_delete_existing_author_success(self, authors_api_client: AuthorsClient) -> None:
+    def test_delete_existing_author_success(
+        self, authors_api_client: AuthorsClient
+    ) -> None:
         """
         Test successful deletion of existing author.
 
@@ -138,15 +140,15 @@ class TestDeleteAuthors:
         author_data_2 = {
             "idBook": author_data_1["idBook"],
             "firstName": "Second Author",
-            "lastName": "Second Last Name"
+            "lastName": "Second Last Name",
         }
 
         post_response_1 = authors_api_client.create_author(author_data_1)
         post_response_2 = authors_api_client.create_author(author_data_2)
-        
+
         validate_status_code(post_response_1, 200)
         validate_status_code(post_response_2, 200)
-        
+
         author_id_1 = post_response_1.json()["id"]
         author_id_2 = post_response_2.json()["id"]
         book_id = author_data_1["idBook"]
@@ -158,23 +160,25 @@ class TestDeleteAuthors:
         # Assert - Second author should still exist and be associated with the book
         get_author_2_response = authors_api_client.get_author_by_id(author_id_2)
         validate_status_code(get_author_2_response, 200)
-        
+
         author_2_data = get_author_2_response.json()
         assert author_2_data["idBook"] == book_id
 
         # Verify book still has authors (at least author 2)
-        book_authors_response = authors_api_client.get_authors_by_book_id(book_id)
+        book_authors_response = authors_api_client.get_authors_by_book_id(str(book_id))
         validate_status_code(book_authors_response, 200)
-        
+
         book_authors = book_authors_response.json()
         author_ids_for_book = [author["id"] for author in book_authors]
-        
+
         # Author 1 should not be in the list anymore
         assert author_id_1 not in author_ids_for_book
         # Author 2 should still be in the list
         assert author_id_2 in author_ids_for_book
 
-    def test_delete_author_response_time(self, authors_api_client: AuthorsClient) -> None:
+    def test_delete_author_response_time(
+        self, authors_api_client: AuthorsClient
+    ) -> None:
         """
         Test response time for deleting author is reasonable.
 

@@ -80,7 +80,7 @@ class TestPostAuthors:
 
         Edge case: API should return appropriate error for missing fields.
         """
-        
+
         # Arrange
         incomplete_author_data = {
             "firstName": "Test Author"
@@ -101,12 +101,12 @@ class TestPostAuthors:
 
         Edge case: API should ignore extra fields and return valid author data.
         """
-        
+
         # Arrange
         author_data_with_extra_fields = {
             **AuthorsData.sample_author_data,
             "extraField": "This should be ignored",
-            "anotherExtraField": 12345
+            "anotherExtraField": 12345,
         }
 
         # Act
@@ -115,11 +115,11 @@ class TestPostAuthors:
         # Assert
         validate_status_code(response, 200)
         author_response = response.json()
-        
+
         # Verify extra fields are not in response
         assert "extraField" not in author_response
         assert "anotherExtraField" not in author_response
-        
+
         # Verify valid fields are present
         validate_json_schema(author_response, AuthorModels.author_response_model)
 
@@ -132,12 +132,12 @@ class TestPostAuthors:
 
         Parametrized test: Ensure authors can be created for various book IDs.
         """
-        
+
         # Arrange
         author_data = {
             "idBook": book_id,
             "firstName": f"Author for Book {book_id}",
-            "lastName": f"LastName {book_id}"
+            "lastName": f"LastName {book_id}",
         }
 
         # Act
@@ -146,7 +146,7 @@ class TestPostAuthors:
         # Assert
         validate_status_code(response, 200)
         author_response = response.json()
-        
+
         validate_json_schema(author_response, AuthorModels.author_response_model)
         assert author_response["idBook"] == book_id
 
@@ -156,7 +156,7 @@ class TestPostAuthors:
 
         Performance test: Ensure API responds quickly.
         """
-        
+
         # Arrange
         test_author_data = AuthorsData.sample_author_data
 

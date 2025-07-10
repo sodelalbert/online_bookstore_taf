@@ -81,7 +81,7 @@ class TestGetAuthors:
 
     @pytest.mark.parametrize("invalid_id", [0, -1, 999999, "abc", 1.5])
     def test_get_author_by_invalid_id(
-        self, authors_api_client: AuthorsClient, invalid_id
+        self, authors_api_client: AuthorsClient, invalid_id: int | str
     ) -> None:
         """
         Test retrieval of author with invalid ID.
