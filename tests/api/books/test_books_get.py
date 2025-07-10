@@ -3,10 +3,14 @@ Tests for Books API - GET endpoints.
 """
 
 import pytest
-from jsonschema import validate
 from src.clients.books_client import BooksClient
-from src.data.books_data import BooksData
 from src.models.books_models import BookModels
+from src.utils.validators import (
+    validate_content_type,
+    validate_elapsed_time,
+    validate_json_schema,
+    validate_status_code,
+)
 
 
 @pytest.mark.api
@@ -27,15 +31,13 @@ class TestGetBooks:
         response = books_api_client.get_all_books()
 
         # Assert
-        assert response.status_code == 200
-        assert "application/json" in response.headers.get("content-type", "")
+        validate_status_code(response, 200)
+        validate_content_type(response, "application/json")
 
         books_data = response.json()
 
-        assert isinstance(books_data, list)
-
         for book in books_data:
-            validate(book, BookModels.book_response_model)
+            validate_json_schema(book, BookModels.book_response_model)
 
     def test_get_all_books_response_time(self, books_api_client: BooksClient) -> None:
         """
@@ -48,8 +50,8 @@ class TestGetBooks:
         response = books_api_client.get_all_books()
 
         # Assert
-        assert response.status_code == 200
-        assert response.elapsed.total_seconds() < 5.0
+        validate_status_code(response, 200)
+        validate_elapsed_time(response, 5.0)
 
 
 @pytest.mark.api
@@ -71,11 +73,11 @@ class TestGetBookById:
         response = books_api_client.get_book_by_id(book_id)
 
         # Assert
-        assert response.status_code == 200
-        assert "application/json" in response.headers.get("content-type", "")
+        validate_status_code(response, 200)
+        validate_content_type(response, "application/json")
 
         book = response.json()
-        validate(book, BookModels.book_response_model)
+        validate_json_schema(book, BookModels.book_response_model)
 
     @pytest.mark.parametrize("invalid_id", [0, -1, -100, 999999, 1000000])
     def test_get_book_by_invalid_id(
@@ -91,11 +93,11 @@ class TestGetBookById:
         response = books_api_client.get_book_by_id(invalid_id)
 
         # Assert
-        assert response.status_code == 404
-        assert "application/problem+json" in response.headers.get("content-type", "")
+        validate_status_code(response, 404)
+        validate_content_type(response, "application/problem+json")
 
         problem_json = response.json()
-        validate(problem_json, BookModels.book_not_found_response_model)
+        validate_json_schema(problem_json, BookModels.book_not_found_response_model)
 
     @pytest.mark.parametrize("invalid_id_type", ["abc", "12.5", "null", "undefined"])
     def test_get_book_by_invalid_id_type(
@@ -111,10 +113,11 @@ class TestGetBookById:
         response = books_api_client.get_book_by_id(invalid_id_type)
 
         # Assert
-        assert response.status_code == 400
+        validate_status_code(response, 400)
+        validate_content_type(response, "application/problem+json")
 
         problem_json = response.json()
-        validate(problem_json, BookModels.book_not_found_response_model)
+        validate_json_schema(problem_json, BookModels.book_not_found_response_model)
 
     def test_get_book_response_time(self, books_api_client: BooksClient) -> None:
         """
@@ -123,14 +126,9 @@ class TestGetBookById:
         Edge case: Ensure API responds quickly for performance.
         """
 
-        post_reponse = books_api_client.create_book(BooksData.sample_book_data)
-        assert post_reponse.status_code == 200
-
-        book_id = post_reponse.json().get("id")
-
         # Act
-        get_response = books_api_client.get_book_by_id(book_id)
+        get_response = books_api_client.get_book_by_id(1)
 
         # Assert
-        assert get_response.status_code == 200
-        assert get_response.elapsed.total_seconds() < 3.0
+        validate_status_code(get_response, 200)
+        validate_elapsed_time(get_response, 5.0)

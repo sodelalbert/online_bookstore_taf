@@ -12,6 +12,7 @@ class BooksData:
     """
 
     sample_book_data = {
+        "id": 1,
         "title": "Test Book",
         "description": "This is a test book.",
         "pageCount": 300,
@@ -28,9 +29,10 @@ class BooksData:
     }
 
     invalid_book_data = {
+        "id": None,
         "title": "",
         "description": "",
-        "pageCount": -100,
+        "pageCount": None,
         "excerpt": "",
         "publishDate": "2025-11-01T00:00:00Z",
     }

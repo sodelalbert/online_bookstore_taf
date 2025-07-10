@@ -29,7 +29,7 @@ class BooksClient(BaseClient):
         """
         return self.get(self.books_endpoint)
 
-    def get_book_by_id(self, book_id: int | str) -> requests.Response:
+    def get_book_by_id(self, book_id: int | str | object) -> requests.Response:
         """
         Get book by ID.
 
@@ -43,7 +43,9 @@ class BooksClient(BaseClient):
         """
         return self.post(self.books_endpoint, data=book_data)
 
-    def update_book(self, book_id: int, book_data: Dict[str, Any]) -> requests.Response:
+    def update_book(
+        self, book_id: int | object, book_data: Dict[str, Any]
+    ) -> requests.Response:
         """
         Update existing book.
 
@@ -53,7 +55,7 @@ class BooksClient(BaseClient):
         """
         return self.put(f"{self.books_endpoint}/{book_id}", data=book_data)
 
-    def delete_book(self, book_id: int) -> requests.Response:
+    def delete_book(self, book_id: int | object) -> requests.Response:
         """
         Delete book by ID.
 

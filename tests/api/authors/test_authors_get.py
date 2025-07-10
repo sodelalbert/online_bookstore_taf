@@ -19,7 +19,6 @@ class TestGetAuthors:
     Test suite for GET /api/v1/Authors endpoint.
     """
 
-    @pytest.mark.smoke
     def test_get_all_authors_success(self, authors_api_client: AuthorsClient) -> None:
         """
         Test successful retrieval of all authors.

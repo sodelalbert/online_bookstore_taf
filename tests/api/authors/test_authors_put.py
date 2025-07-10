@@ -15,7 +15,6 @@ class TestPutAuthors:
     Test suite for PUT /api/v1/Authors/{id} endpoint.
     """
 
-    @pytest.mark.smoke
     def test_put_author_success(self, authors_api_client: AuthorsClient) -> None:
         """
         Test successful update of author.

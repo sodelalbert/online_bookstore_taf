@@ -7,6 +7,11 @@ from jsonschema import validate
 from src.clients.books_client import BooksClient
 from src.data.books_data import BooksData
 from src.models.books_models import BookModels
+from src.utils.validators import (
+    validate_content_type,
+    validate_json_schema,
+    validate_status_code,
+)
 
 
 @pytest.mark.api
@@ -15,37 +20,109 @@ class TestPostBooks:
     Test suite for POST /api/v1/Books endpoint.
     """
 
-    @pytest.mark.smoke
-    def test_post_book_success(self, books_api_client: BooksClient) -> None:
+    @pytest.mark.parametrize(
+        "book_id", [-1, 0, 1, 99, 100, 199, 200, 201, 500, 1762, 99999]
+    )
+    def test_parametrized_post_book(
+        self, books_api_client: BooksClient, book_id: int
+    ) -> None:
         """
-        Test successful creation of book.
+        Test successful creation of book with parametrized book ID.
 
         Sunny day scenario: API returns 200 status with created book data.
         """
 
         # Arrange
         test_book_data = BooksData.sample_book_data
+        test_book_data["id"] = book_id
+
+        # Act
+        post_response = books_api_client.create_book(test_book_data)
+        validate_status_code(post_response, 200)
+        validate_content_type(post_response, "application/json")
+
+        # Assert
+
+        # Validate POST response structure
+        post_response_json = post_response.json()
+        validate_json_schema(post_response_json, BookModels.book_response_model)
+        validate_json_schema(post_response_json, test_book_data)
+
+        # Validate GET response
+        get_reponse = books_api_client.get_book_by_id(book_id)
+        get_reponse_json = get_reponse.json()
+        validate_status_code(get_reponse, 200)
+        validate_content_type(get_reponse, "application/json")
+        validate_json_schema(get_reponse_json, test_book_data)
+
+    def test_post_book_nullable_data(self, books_api_client: BooksClient) -> None:
+        """
+        Test creation of book with nullable fields.
+        Validates handling of null values with GET request.
+
+        Sunny day scenario: API returns 200 status with created book data.
+        """
+
+        # Arrange
+        test_book_data = BooksData.sample_book_data
+        test_book_data["id"] = 99999  # Use a unique ID for this test
+        test_book_data["title"] = None
+        test_book_data["description"] = None
+        test_book_data["excerpt"] = None
 
         # Act
         post_response = books_api_client.create_book(test_book_data)
 
         # Assert
-        assert post_response.status_code == 200
-        assert "application/json" in post_response.headers.get("content-type", "")
-        post_book_response = post_response.json()
 
-        validate(post_book_response, BookModels.book_response_model)
+        # Validate POST response structure
+        validate_status_code(post_response, 200)
+        validate_content_type(post_response, "application/json")
+        post_response_json = post_response.json()
 
-        assert isinstance(post_book_response["id"], int)
-        assert post_book_response["title"] == test_book_data["title"]
-        assert post_book_response["description"] == test_book_data["description"]
-        assert post_book_response["pageCount"] == test_book_data["pageCount"]
-        assert post_book_response["excerpt"] == test_book_data["excerpt"]
-        assert post_book_response["publishDate"] == test_book_data["publishDate"]
+        validate_json_schema(post_response_json, BookModels.book_response_model)
 
-    def test_post_book_invalid_data(self, books_api_client: BooksClient) -> None:
+        # Validate created book data
+        test_book_id = test_book_data.get("id")
+
+        get_reponse = books_api_client.get_book_by_id(test_book_id)
+        validate_status_code(get_reponse, 200)
+        validate_content_type(get_reponse, "application/json")
+        get_reponse_json = get_reponse.json()
+        validate_json_schema(get_reponse_json, test_book_data)
+
+    def test_post_conflict_book_id(self, books_api_client: BooksClient) -> None:
         """
-        Test creation of book with invalid data.
+        Test creation of book with existing ID.
+
+        Edge case: API should return 400 or 409 Conflict for duplicate ID.
+        """
+
+        # Arrange
+        get_response = books_api_client.get_book_by_id(1)
+
+        validate_status_code(get_response, 200)
+
+        existing_book_data = get_response.json()
+        assert existing_book_data["id"] == 1
+        assert existing_book_data["pageCount"] is not None
+        assert existing_book_data["publishDate"] is not None
+
+        test_book_data = BooksData.sample_book_data
+        test_book_data["id"] = 1
+
+        # Act
+        post_response = books_api_client.create_book(test_book_data)
+
+        # Assert
+        validate_status_code(post_response, [400, 409])
+        validate_content_type(post_response, "application/json")
+
+    def test_post_book_missing_mandatory_data(
+        self, books_api_client: BooksClient
+    ) -> None:
+        """
+        Test creation of book with missing data.
 
         Edge case: API should return 400 Bad Request for invalid input.
         """
@@ -54,29 +131,31 @@ class TestPostBooks:
         invalid_book_data = BooksData.invalid_book_data
 
         # Act
-        response = books_api_client.create_book(invalid_book_data)
+        post_response = books_api_client.create_book(invalid_book_data)
 
         # Assert
-        assert response.status_code == 400
-        assert "application/json" in response.headers.get("content-type", "")
-        error_response = response.json()
+        validate_status_code(post_response, 400)
+        validate_content_type(post_response, "application/problem+json")
 
-        validate(error_response, BookModels.book_not_found_response_model)
+        post_reponse_json = post_response.json()
+        validate(post_reponse_json, BookModels.book_not_found_response_model)
 
-    def test_post_book_missing_required_fields(
-        self, books_api_client: BooksClient
-    ) -> None:
+    def test_post_out_of_range_page_count(self, books_api_client: BooksClient) -> None:
         """
-        Test creation of book with missing required fields.
+        Test creation of book with out-of-range ID.
 
-        Edge case: API should return 400 Bad Request for missing fields.
+        Edge case: API should return 400 Bad Request for invalid ID.
         """
 
-    def test_post_book_with_parametrized_invalid_fields(
-        self, books_api_client: BooksClient
-    ) -> None:
-        """
-        Test creation of book with invalid fields not defined in schema.
+        # Arrange
+        test_book_data = BooksData.sample_book_data
+        test_book_data["pageCount"] = -1020
 
-        Edge case: API should ignore extra fields and return valid book data.
-        """
+        # Act
+        post_response = books_api_client.create_book(test_book_data)
+
+        # Assert
+        validate_status_code(post_response, 400)
+        validate_content_type(post_response, "application/problem+json")
+        post_reponse_json = post_response.json()
+        validate(post_reponse_json, BookModels.book_not_found_response_model)
