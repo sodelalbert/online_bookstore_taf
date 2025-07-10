@@ -6,6 +6,11 @@ import pytest
 from jsonschema import validate
 from src.clients.authors_client import AuthorsClient
 from src.models.authors_models import AuthorModels
+from src.utils.validators import (
+    validate_content_type,
+    validate_json_schema,
+    validate_status_code,
+)
 
 
 @pytest.mark.api
@@ -26,15 +31,13 @@ class TestGetAuthors:
         response = authors_api_client.get_all_authors()
 
         # Assert
-        assert response.status_code == 200
-        assert "application/json" in response.headers.get("content-type", "")
+        validate_status_code(response, 200)
+        validate_content_type(response, "application/json")
 
         authors_data = response.json()
 
-        assert isinstance(authors_data, list)
-
         for author in authors_data:
-            validate(author, AuthorModels.author_response_model)
+            validate_json_schema(author, AuthorModels.author_response_model)
 
     def test_get_all_authors_response_time(
         self, authors_api_client: AuthorsClient
