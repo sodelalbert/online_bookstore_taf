@@ -18,6 +18,7 @@ online_bookstore_taf/
 ├── docs/                   # Project documentation
 ├── reports/                # Test reports and artifacts
 ├── samples/                # Sample files
+├── utils/                  # Misc scrpts including validators
 ├── src/                    # Source code for API clients, data, and models
 │   ├── api/                # HTTP client configuration
 │   ├── data/               # Common data management folder for tests
@@ -93,11 +94,15 @@ To run smoke tests across all types:
 uv run pytest -m smoke
 ```
 
-## 📊 Reporting
+## 📊  Reporting
 
 Test reporting is seamlessly integrated into the framework. **Pytest** is preconfigured to generate and store test reports automatically in the `reports/` directory after each run. This ensures that test results, including detailed logs and summaries, are consistently available for review and sharing. The reporting setup supports both human-readable HTML reports and machine-readable formats, making it easy to analyze results locally or in CI/CD pipelines.
 
 ![Smoke Test Report Preview](docs/smoke.png)
+
+## 📝 Logging
+
+Each test execution generates a dedicated log entry, which is stored in a single log file located at `reports/logs`. This approach ensures that all test logs are consolidated and easily accessible for review. Log entries provide detailed information about each test's execution and outcome, and are visible both in the log file and within the generated HTML reports for comprehensive traceability.
 
 ## 🚦 CI/CD Pipelines
 
@@ -113,7 +118,7 @@ The project leverages **GitHub Actions** for robust CI/CD automation. The pipeli
    Sensitive information such as API keys and credentials are managed using GitHub Secrets. These secrets are injected into the workflow environment at runtime, ensuring they are never exposed in logs or version control.
 
 - **Test Results and Reporting:**  
-   After each test run, detailed reports are generated and uploaded as workflow artifacts. This makes it easy for contributors and reviewers to access test results directly from the GitHub Actions interface, supporting transparent and efficient collaboration.
+   After each test run, detailed reports—including consolidated logs—are generated and uploaded as workflow artifacts. Contributors and reviewers can easily download these reports and logs directly from the GitHub Actions interface, ensuring transparent and efficient collaboration.
 
 The CI/CD setup ensures that every code change is automatically validated, securely tested, and clearly reported, streamlining the development and deployment process.
 
