@@ -91,3 +91,17 @@ class AuthorsClient(BaseClient):
             HTTP response object
         """
         return self.delete(f"{self.authors_endpoint}/{author_id}")
+
+    def get_authors_by_book_id(self, book_id: int | str) -> requests.Response:
+        """
+        Get authors by book ID.
+
+        GET /api/v1/Authors/authors/books/{idBook} – Retrieve authors for a specific book.
+
+        Args:
+            book_id: Book ID to get authors for
+
+        Returns:
+            HTTP response object
+        """
+        return self.get(f"{self.authors_endpoint}/authors/books/{book_id}")

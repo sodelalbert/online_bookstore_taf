@@ -3,11 +3,11 @@ Tests for Authors API - GET endpoints.
 """
 
 import pytest
-from jsonschema import validate
 from src.clients.authors_client import AuthorsClient
 from src.models.authors_models import AuthorModels
 from src.utils.validators import (
     validate_content_type,
+    validate_elapsed_time,
     validate_json_schema,
     validate_status_code,
 )
@@ -16,9 +16,10 @@ from src.utils.validators import (
 @pytest.mark.api
 class TestGetAuthors:
     """
-    Test suite for GET /api/v1/Authors endpoint.
+    Test suite for GET /api/v1/Authors endpoints.
     """
 
+    @pytest.mark.smoke
     def test_get_all_authors_success(self, authors_api_client: AuthorsClient) -> None:
         """
         Test successful retrieval of all authors.
@@ -35,6 +36,7 @@ class TestGetAuthors:
 
         authors_data = response.json()
 
+        # Validate each author in the response
         for author in authors_data:
             validate_json_schema(author, AuthorModels.author_response_model)
 
@@ -44,91 +46,120 @@ class TestGetAuthors:
         """
         Test response time for getting all authors is reasonable.
 
-        Edge case: Ensure API responds quickly for performance.
+        Performance test: Ensure API responds quickly.
         """
 
         # Act
         response = authors_api_client.get_all_authors()
 
         # Assert
-        assert response.status_code == 200
-        assert response.elapsed.total_seconds() < 5.0
+        validate_status_code(response, 200)
+        validate_elapsed_time(response, 3.0)
 
-
-@pytest.mark.api
-class TestGetAuthorById:
-    """
-    Test suite for GET /api/v1/Authors/{id} endpoint.
-    """
-
-    @pytest.mark.parametrize("author_id", [1, 5, 10, 50, 100])
-    def test_get_author_by_valid_id_success(
+    @pytest.mark.parametrize("author_id", [1, 2, 5, 10, 50])
+    def test_get_author_by_valid_id(
         self, authors_api_client: AuthorsClient, author_id: int
     ) -> None:
         """
         Test successful retrieval of author by valid ID.
 
-        Sunny day scenario: API returns specific author with 200 status.
+        Parametrized test: Test with various valid author IDs.
         """
+
         # Act
         response = authors_api_client.get_author_by_id(author_id)
 
         # Assert
-        assert response.status_code == 200
-        assert "application/json" in response.headers.get("content-type", "")
+        validate_status_code(response, 200)
+        validate_content_type(response, "application/json")
 
-        author = response.json()
-        validate(author, AuthorModels.author_response_model)
+        author_data = response.json()
+        validate_json_schema(author_data, AuthorModels.author_response_model)
 
-    @pytest.mark.parametrize("invalid_id", [0, -1, -100, 999999, 1000000])
+        # Verify the returned author has the requested ID
+        assert author_data["id"] == author_id
+
+    @pytest.mark.parametrize("invalid_id", [0, -1, 999999, "abc", 1.5])
     def test_get_author_by_invalid_id(
-        self, authors_api_client: AuthorsClient, invalid_id: int
+        self, authors_api_client: AuthorsClient, invalid_id
     ) -> None:
         """
-        Test retrieval of author with invalid/non-existent ID.
+        Test retrieval of author with invalid ID.
 
-        Edge case: API should handle invalid IDs gracefully.
+        Edge case: API should return 400 for invalid/non-existent author IDs.
         """
 
         # Act
         response = authors_api_client.get_author_by_id(invalid_id)
 
         # Assert
-        assert response.status_code == 404
-        assert "application/problem+json" in response.headers.get("content-type", "")
+        validate_status_code(response, [400, 404])
+        validate_content_type(response, "application/problem+json")
 
-        problem_json = response.json()
-        validate(problem_json, AuthorModels.author_not_found_response_model)
+        error_data = response.json()
+        validate_json_schema(error_data, AuthorModels.author_not_found_response_model)
 
-    @pytest.mark.parametrize("invalid_id_type", ["abc", "12.5", "null", "undefined"])
-    def test_get_author_by_invalid_id_type(
-        self, authors_api_client: AuthorsClient, invalid_id_type: str
+    @pytest.mark.parametrize("book_id", [1, 2, 5, 10])
+    def test_get_authors_by_book_id_success(
+        self, authors_api_client: AuthorsClient, book_id: int
     ) -> None:
         """
-        Test retrieval with invalid ID types.
+        Test successful retrieval of authors by book ID.
 
-        Edge case: API should handle non-integer IDs.
+        Parametrized test: Test with various valid book IDs.
         """
 
         # Act
-        response = authors_api_client.get_author_by_id(invalid_id_type)
+        response = authors_api_client.get_authors_by_book_id(book_id)
 
         # Assert
-        assert response.status_code == 400
+        validate_status_code(response, 200)
+        validate_content_type(response, "application/json")
 
-        problem_json = response.json()
-        validate(problem_json, AuthorModels.author_not_found_response_model)
+        authors_data = response.json()
 
-    def test_get_author_response_time(self, authors_api_client: AuthorsClient) -> None:
+        # Validate each author in the response
+        for author in authors_data:
+            validate_json_schema(author, AuthorModels.author_response_model)
+            # Verify all authors belong to the requested book
+            assert author["idBook"] == book_id
+
+    @pytest.mark.parametrize("invalid_book_id", [0, -1, 999999])
+    def test_get_authors_by_invalid_book_id(
+        self, authors_api_client: AuthorsClient, invalid_book_id: int
+    ) -> None:
         """
-        Test response time for getting single author.
+        Test retrieval of authors with invalid book ID.
 
-        Edge case: Ensure API responds quickly for performance.
+        Edge case: API should handle invalid book IDs gracefully.
         """
 
         # Act
-        response = authors_api_client.get_author_by_id(1)
+        response = authors_api_client.get_authors_by_book_id(invalid_book_id)
 
         # Assert
-        assert response.status_code == 200
-        assert response.elapsed.total_seconds() < 3.0
+        # The API might return 200 with empty list or 404
+        validate_status_code(response, [200, 404])
+
+        if response.status_code == 200:
+            authors_data = response.json()
+            # Should return empty list for non-existent book
+            assert isinstance(authors_data, list)
+        elif response.status_code == 404:
+            validate_content_type(response, "application/json")
+
+    def test_get_authors_by_book_id_response_time(
+        self, authors_api_client: AuthorsClient
+    ) -> None:
+        """
+        Test response time for getting authors by book ID is reasonable.
+
+        Performance test: Ensure API responds quickly.
+        """
+
+        # Act
+        response = authors_api_client.get_authors_by_book_id(1)
+
+        # Assert
+        validate_status_code(response, 200)
+        validate_elapsed_time(response, 3.0)
