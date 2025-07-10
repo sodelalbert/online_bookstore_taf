@@ -12,3 +12,5 @@ venv
 uv.lock
 .idea
 .env
+
+reports/logs/*.log

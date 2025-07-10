@@ -85,7 +85,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: smoke-test-report
-          path: reports/smoke.html
+          path: |
+            reports/smoke.html
+            reports/logs/*.log
 
   API-Regrsssion-Test:
     name: API Regrsssion Tests
@@ -117,4 +119,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: api-test-report
-          path: reports/api.html
+          path: |
+            reports/api.html
+            reports/logs/*.log

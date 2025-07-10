@@ -4,7 +4,7 @@ Tests for Books API - DELETE endpoints.
 
 import pytest
 from jsonschema import validate
-from src.api.books_client import BooksClient
+from src.clients.books_client import BooksClient
 from src.data.books_data import BooksData
 from src.models.books_models import BookModels
 

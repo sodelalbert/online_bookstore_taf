@@ -12,6 +12,7 @@ class BooksData:
     """
 
     sample_book_data = {
+        "id": 200,
         "title": "Test Book",
         "description": "This is a test book.",
         "pageCount": 300,

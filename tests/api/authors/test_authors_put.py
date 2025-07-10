@@ -4,7 +4,7 @@ Tests for Authors API - PUT endpoints.
 
 import pytest
 from jsonschema import validate
-from src.api.authors_client import AuthorsClient
+from src.clients.authors_client import AuthorsClient
 from src.data.authors_data import AuthorsData
 from src.models.authors_models import AuthorModels
 

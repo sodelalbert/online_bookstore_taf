@@ -4,7 +4,8 @@ Tests for Books API - GET endpoints.
 
 import pytest
 from jsonschema import validate
-from src.api.books_client import BooksClient
+from src.clients.books_client import BooksClient
+from src.data.books_data import BooksData
 from src.models.books_models import BookModels
 
 
@@ -122,9 +123,14 @@ class TestGetBookById:
         Edge case: Ensure API responds quickly for performance.
         """
 
+        post_reponse = books_api_client.create_book(BooksData.sample_book_data)
+        assert post_reponse.status_code == 200
+
+        book_id = post_reponse.json().get("id")
+
         # Act
-        response = books_api_client.get_book_by_id(1)
+        get_response = books_api_client.get_book_by_id(book_id)
 
         # Assert
-        assert response.status_code == 200
-        assert response.elapsed.total_seconds() < 3.0
+        assert get_response.status_code == 200
+        assert get_response.elapsed.total_seconds() < 3.0

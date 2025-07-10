@@ -4,7 +4,7 @@ Tests for Books API - POST endpoints.
 
 import pytest
 from jsonschema import validate
-from src.api.books_client import BooksClient
+from src.clients.books_client import BooksClient
 from src.data.books_data import BooksData
 from src.models.books_models import BookModels
 
@@ -27,12 +27,12 @@ class TestPostBooks:
         test_book_data = BooksData.sample_book_data
 
         # Act
-        response = books_api_client.create_book(test_book_data)
+        post_response = books_api_client.create_book(test_book_data)
 
         # Assert
-        assert response.status_code == 200
-        assert "application/json" in response.headers.get("content-type", "")
-        post_book_response = response.json()
+        assert post_response.status_code == 200
+        assert "application/json" in post_response.headers.get("content-type", "")
+        post_book_response = post_response.json()
 
         validate(post_book_response, BookModels.book_response_model)
 

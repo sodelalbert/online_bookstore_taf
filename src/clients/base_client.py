@@ -3,6 +3,7 @@ HTTP client base abstract class for API testing.
 """
 
 from abc import ABC
+import logging
 from typing import Dict, Any, Optional
 import os
 import requests
@@ -33,6 +34,9 @@ class BaseClient(ABC):
             )
 
         self.timeout = timeout
+        logging.info("Base URL: %s", self.base_url)
+        logging.info("HTTP Response Timeout: %s seconds", self.timeout)
+
         self.session = requests.Session()
         self._setup_session()
 
@@ -91,7 +95,12 @@ class BaseClient(ABC):
         """
         GET request.
         """
-        return self._make_request("GET", endpoint, params=params)
+        logging.info("[GET REQ] Endpoint: %s, Params: %s", endpoint, params)
+        response = self._make_request("GET", endpoint, params=params)
+        logging.info(
+            "[GET RSP] Code: %s, Data: %s", response.status_code, response.text
+        )
+        return response
 
     def post(
         self, endpoint: str, data: Optional[Dict[str, Any]] = None
@@ -99,7 +108,12 @@ class BaseClient(ABC):
         """
         POST request.
         """
-        return self._make_request("POST", endpoint, data=data)
+        logging.info("[POST REQ] Endpoint: %s, Data: %s", endpoint, data)
+        response = self._make_request("POST", endpoint, data=data)
+        logging.info(
+            "[POST RSP] Code: %s, Data: %s", response.status_code, response.text
+        )
+        return response
 
     def put(
         self, endpoint: str, data: Optional[Dict[str, Any]] = None
@@ -107,13 +121,23 @@ class BaseClient(ABC):
         """
         PUT request.
         """
-        return self._make_request("PUT", endpoint, data=data)
+        logging.info("[PUT REQ] Endpoint: %s, Data: %s", endpoint, data)
+        response = self._make_request("PUT", endpoint, data=data)
+        logging.info(
+            "[PUT RSP] Code: %s, Data: %s", response.status_code, response.text
+        )
+        return response
 
     def delete(self, endpoint: str) -> requests.Response:
         """
         DELETE request.
         """
-        return self._make_request("DELETE", endpoint)
+        logging.info("[DELETE REQ] Endpoint: %s", endpoint)
+        response = self._make_request("DELETE", endpoint)
+        logging.info(
+            "[DELETE RSP] Code: %s, Data: %s", response.status_code, response.text
+        )
+        return response
 
     def patch(
         self, endpoint: str, data: Optional[Dict[str, Any]] = None
@@ -121,4 +145,9 @@ class BaseClient(ABC):
         """
         PATCH request.
         """
-        return self._make_request("PATCH", endpoint, data=data)
+        logging.info("[PATCH REQ] Endpoint: %s, Data: %s", endpoint, data)
+        response = self._make_request("PATCH", endpoint, data=data)
+        logging.info(
+            "[PATCH RSP] Code: %s, Data: %s", response.status_code, response.text
+        )
+        return response

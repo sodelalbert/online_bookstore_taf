@@ -5,7 +5,7 @@ Books API client with specific endpoints.
 import os
 from typing import Dict, Any
 import requests
-from src.api.base_client import BaseClient
+from src.clients.base_client import BaseClient
 
 
 class BooksClient(BaseClient):
