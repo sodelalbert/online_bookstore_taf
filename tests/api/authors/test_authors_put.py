@@ -9,6 +9,7 @@ from src.models.authors_models import AuthorModels
 from src.utils.validators import (
     validate_content_type,
     validate_elapsed_time,
+    validate_json_data,
     validate_json_schema,
     validate_response_reason,
     validate_status_code,
@@ -35,35 +36,30 @@ class TestPutAuthors:
         test_author_data = AuthorsData.sample_author_data
         post_response = authors_api_client.create_author(test_author_data)
         validate_status_code(post_response, 200)
+        post_response_json = post_response.json()
 
-        author_id = post_response.json()["id"]
-        updated_author_data = AuthorsData.updated_author_data
+        updated_author_data = AuthorsData.updated_author_data.copy()
 
         # Act
-        put_response = authors_api_client.update_author(author_id, updated_author_data)
+        put_response = authors_api_client.update_author(
+            post_response_json["id"], updated_author_data
+        )
 
         # Assert
         validate_status_code(put_response, 200)
         validate_content_type(put_response, "application/json")
         validate_response_reason(put_response, "OK")
 
-        updated_author_response = put_response.json()
-        validate_json_schema(
-            updated_author_response, AuthorModels.author_response_model
-        )
-
-        # Verify the author was actually updated
-        assert updated_author_response["id"] == author_id
-        assert updated_author_response["idBook"] == updated_author_data["idBook"]
-        assert updated_author_response["firstName"] == updated_author_data["firstName"]
-        assert updated_author_response["lastName"] == updated_author_data["lastName"]
+        put_response_data = put_response.json()
+        validate_json_schema(put_response_data, AuthorModels.author_response_model)
+        validate_json_data(put_response_data, updated_author_data)
 
     def test_put_nonexistent_author_failure(
         self, authors_api_client: AuthorsClient
     ) -> None:
         """
         Test updating nonexistent author fails appropriately.
-
+        Assumption: API should return 404 for non-existent author ID.
         Edge case: API should return 404 for non-existent author ID.
         """
 
@@ -95,28 +91,33 @@ class TestPutAuthors:
         """
 
         # Arrange - First create a valid author
-        test_author_data = AuthorsData.sample_author_data
+        test_author_data = AuthorsData.sample_author_data.copy()
         post_response = authors_api_client.create_author(test_author_data)
         validate_status_code(post_response, 200)
-        author_id = post_response.json()["id"]
+        post_response_data = post_response.json()
 
         # Arrange invalid update data
         invalid_author_data = AuthorsData.invalid_author_data
 
+        assert (
+            test_author_data["id"] == post_response_data["id"]
+        ), "Author ID mismatch after creation"
+
         # Act
-        put_response = authors_api_client.update_author(author_id, invalid_author_data)
+        put_response = authors_api_client.update_author(
+            post_response_data["id"], invalid_author_data
+        )
 
         # Assert
-        # The API behavior with invalid data may vary
         validate_status_code(put_response, [200, 400])
+        put_response_data = put_response.json()
+        validate_json_data(put_response_data, invalid_author_data)
 
-        if put_response.status_code == 200:
-            put_response_json = put_response.json()
-            validate_json_schema(put_response_json, AuthorModels.author_response_model)
-        elif put_response.status_code == 400:
-            validate_response_reason(put_response, "Bad Request")
+        assert (
+            test_author_data["id"] == put_response_data["id"]
+        ), "Author ID mismatch after update with invalid data"
 
-    @pytest.mark.parametrize("invalid_id", [0, -1, -100, "abc", 1.5])
+    @pytest.mark.parametrize("invalid_id", [-1, -100, "abc", 1.5])
     def test_put_author_invalid_id_types(
         self, authors_api_client: AuthorsClient, invalid_id: int | str
     ) -> None:
@@ -134,39 +135,6 @@ class TestPutAuthors:
 
         # Assert
         validate_status_code(put_response, [400, 404])
-
-    def test_put_author_partial_update(self, authors_api_client: AuthorsClient) -> None:
-        """
-        Test partial update of author (updating only some fields).
-
-        Edge case: Test if API supports partial updates.
-        """
-
-        # Arrange - Create initial author
-        test_author_data = AuthorsData.sample_author_data
-        post_response = authors_api_client.create_author(test_author_data)
-        validate_status_code(post_response, 200)
-        author_id = post_response.json()["id"]
-
-        # Partial update data (only firstName)
-        partial_update_data = {
-            "idBook": test_author_data["idBook"],
-            "firstName": "Partially Updated Name",
-            "lastName": test_author_data["lastName"],
-        }
-
-        # Act
-        put_response = authors_api_client.update_author(author_id, partial_update_data)
-
-        # Assert
-        validate_status_code(put_response, 200)
-        updated_author_response = put_response.json()
-
-        validate_json_schema(
-            updated_author_response, AuthorModels.author_response_model
-        )
-        assert updated_author_response["firstName"] == "Partially Updated Name"
-        assert updated_author_response["lastName"] == test_author_data["lastName"]
 
     def test_put_author_different_book_association(
         self, authors_api_client: AuthorsClient

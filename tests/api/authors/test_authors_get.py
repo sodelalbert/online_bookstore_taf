@@ -9,6 +9,7 @@ from src.utils.validators import (
     validate_content_type,
     validate_elapsed_time,
     validate_json_schema,
+    validate_response_reason,
     validate_status_code,
 )
 
@@ -28,13 +29,13 @@ class TestGetAuthors:
         """
 
         # Act
-        response = authors_api_client.get_all_authors()
+        get_response = authors_api_client.get_all_authors()
 
         # Assert
-        validate_status_code(response, 200)
-        validate_content_type(response, "application/json")
+        validate_status_code(get_response, 200)
+        validate_content_type(get_response, "application/json")
 
-        authors_data = response.json()
+        authors_data = get_response.json()
 
         # Validate each author in the response
         for author in authors_data:
@@ -50,13 +51,19 @@ class TestGetAuthors:
         """
 
         # Act
-        response = authors_api_client.get_all_authors()
+        get_response = authors_api_client.get_all_authors()
 
         # Assert
-        validate_status_code(response, 200)
-        validate_elapsed_time(response, 3.0)
+        validate_status_code(get_response, 200)
+        validate_elapsed_time(get_response, 3.0)
 
-    @pytest.mark.parametrize("author_id", [1, 2, 5, 10, 50])
+
+class TestGetAuthorsById:
+    """
+    Test suite for GET /api/v1/Authors/{id} endpoint.
+    """
+
+    @pytest.mark.parametrize("author_id", [1, 2, 500, 597, 598, 999, 1000, 10000])
     def test_get_author_by_valid_id(
         self, authors_api_client: AuthorsClient, author_id: int
     ) -> None:
@@ -67,17 +74,17 @@ class TestGetAuthors:
         """
 
         # Act
-        response = authors_api_client.get_author_by_id(author_id)
+        get_response = authors_api_client.get_author_by_id(author_id)
 
         # Assert
-        validate_status_code(response, 200)
-        validate_content_type(response, "application/json")
+        validate_status_code(get_response, 200)
+        validate_content_type(get_response, "application/json")
 
-        author_data = response.json()
-        validate_json_schema(author_data, AuthorModels.author_response_model)
+        get_response_data = get_response.json()
+        validate_json_schema(get_response_data, AuthorModels.author_response_model)
 
         # Verify the returned author has the requested ID
-        assert author_data["id"] == author_id
+        assert get_response_data["id"] == author_id
 
     @pytest.mark.parametrize("invalid_id", [0, -1, 999999, "abc", 1.5])
     def test_get_author_by_invalid_id(
@@ -90,16 +97,22 @@ class TestGetAuthors:
         """
 
         # Act
-        response = authors_api_client.get_author_by_id(invalid_id)
+        get_response = authors_api_client.get_author_by_id(invalid_id)
 
         # Assert
-        validate_status_code(response, [400, 404])
-        validate_content_type(response, "application/problem+json")
+        validate_status_code(get_response, [400, 404])
+        validate_content_type(get_response, "application/problem+json")
 
-        error_data = response.json()
+        error_data = get_response.json()
         validate_json_schema(error_data, AuthorModels.author_not_found_response_model)
 
-    @pytest.mark.parametrize("book_id", [1, 2, 5, 10])
+
+class TestGetAuthorsByBookId:
+    """
+    Test suite for GET /api/v1/Authors/Book/{id} endpoint.
+    """
+
+    @pytest.mark.parametrize("book_id", [1, 2, 5, 10, 100])
     def test_get_authors_by_book_id_success(
         self, authors_api_client: AuthorsClient, book_id: int
     ) -> None:
@@ -110,43 +123,62 @@ class TestGetAuthors:
         """
 
         # Act
-        response = authors_api_client.get_authors_by_book_id(book_id)
+        get_response = authors_api_client.get_authors_by_book_id(book_id)
 
         # Assert
-        validate_status_code(response, 200)
-        validate_content_type(response, "application/json")
+        validate_status_code(get_response, 200)
+        validate_content_type(get_response, "application/json")
 
-        authors_data = response.json()
+        authors_data = get_response.json()
 
         # Validate each author in the response
         for author in authors_data:
             validate_json_schema(author, AuthorModels.author_response_model)
-            # Verify all authors belong to the requested book
             assert author["idBook"] == book_id
 
-    @pytest.mark.parametrize("invalid_book_id", [0, -1, 999999])
-    def test_get_authors_by_invalid_book_id(
+    @pytest.mark.parametrize("invalid_book_id", [0, -1])
+    def test_get_authors_by_book_id_out_of_range(
         self, authors_api_client: AuthorsClient, invalid_book_id: int
+    ) -> None:
+        """
+        Test retrieval of authors with book ID that is out of range.
+
+        Edge case: API should handle invalid book IDs gracefully.
+        """
+
+        # Act
+        get_response = authors_api_client.get_authors_by_book_id(invalid_book_id)
+
+        # Assert
+        validate_status_code(get_response, 200)
+        validate_content_type(get_response, "application/json")
+
+        get_response_data = get_response.json()
+        assert isinstance(get_response_data, list)
+        assert len(get_response_data) == 0  # Should return empty list for non-existent
+
+    def test_get_authors_by_invalid_book_id(
+        self,
+        authors_api_client: AuthorsClient,
     ) -> None:
         """
         Test retrieval of authors with invalid book ID.
 
         Edge case: API should handle invalid book IDs gracefully.
         """
+        invalid_book_id = "test"
 
         # Act
-        response = authors_api_client.get_authors_by_book_id(invalid_book_id)
+        get_response = authors_api_client.get_authors_by_book_id(invalid_book_id)
 
         # Assert
-        # The API might return 200 with empty list or 404
-        validate_status_code(response, [200, 404])
-
-        if response.status_code == 200:
-            authors_data = response.json()
-            # Should return empty list for non-existent book
-            assert isinstance(authors_data, list)
-        elif response.status_code == 404:
-            validate_content_type(response, "application/json")
+        validate_status_code(get_response, 400)
+        validate_content_type(get_response, "application/problem+json")
+        get_response_json = get_response.json()
+        validate_json_schema(
+            get_response_json, AuthorModels.author_not_found_response_model
+        )
+        validate_response_reason(get_response, "Bad Request")
 
     def test_get_authors_by_book_id_response_time(
         self, authors_api_client: AuthorsClient
@@ -158,8 +190,8 @@ class TestGetAuthors:
         """
 
         # Act
-        response = authors_api_client.get_authors_by_book_id(1)
+        get_response = authors_api_client.get_authors_by_book_id(1)
 
         # Assert
-        validate_status_code(response, 200)
-        validate_elapsed_time(response, 3.0)
+        validate_status_code(get_response, 200)
+        validate_elapsed_time(get_response, 3.0)

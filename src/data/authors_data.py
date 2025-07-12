@@ -12,21 +12,22 @@ class AuthorsData:
     """
 
     sample_author_data = {
+        "id": 1,
         "idBook": 1,
         "firstName": "Test Author",
         "lastName": "Test Last Name",
     }
 
     updated_author_data = {
-        "idBook": 1,
+        "idBook": 11,
         "firstName": "Updated Author",
         "lastName": "Updated Last Name",
     }
 
     invalid_author_data = {
         "idBook": -100,
-        "firstName": "",
-        "lastName": "",
+        "firstName": None,
+        "lastName": None,
     }
 
     sample_author_data_different_book = {

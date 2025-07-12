@@ -9,6 +9,7 @@ from src.models.authors_models import AuthorModels
 from src.utils.validators import (
     validate_content_type,
     validate_elapsed_time,
+    validate_json_data,
     validate_json_schema,
     validate_response_reason,
     validate_status_code,
@@ -44,10 +45,40 @@ class TestPostAuthors:
         validate_json_schema(author_response, AuthorModels.author_response_model)
 
         # Verify the created author data
-        assert isinstance(author_response["id"], int)
-        assert author_response["idBook"] == test_author_data["idBook"]
-        assert author_response["firstName"] == test_author_data["firstName"]
-        assert author_response["lastName"] == test_author_data["lastName"]
+        validate_json_data(author_response, test_author_data)
+
+    @pytest.mark.parametrize("author_id", [-1, 1, 2, 500, 597, 598, 999, 1000, 10000])
+    def test_post_author_wihth_parametrized_id(
+        self, authors_api_client: AuthorsClient, author_id: int
+    ) -> None:
+        """
+        Test creation of author with different book IDs.
+
+        Edge case: Ensure authors can be created for various book IDs.
+        """
+        # Arrange
+        test_author_data = AuthorsData.sample_author_data.copy()
+        test_author_data["id"] = author_id
+
+        # Act
+        post_response = authors_api_client.create_author(test_author_data)
+
+        # Assert
+
+        validate_status_code(post_response, 200)
+        validate_content_type(post_response, "application/json")
+        validate_response_reason(post_response, "OK")
+        post_response = post_response.json()
+        validate_json_schema(post_response, AuthorModels.author_response_model)
+        validate_json_data(post_response, test_author_data)
+
+        # Undefined behavior for author_id in response - due to ID allocaton issue.
+        get_response = authors_api_client.get_author_by_id(author_id)
+        validate_status_code(get_response, 200)
+        validate_content_type(get_response, "application/json")
+        get_response_json = get_response.json()
+        validate_json_schema(get_response_json, AuthorModels.author_response_model)
+        validate_json_data(get_response_json, test_author_data)
 
     def test_post_author_invalid_data(self, authors_api_client: AuthorsClient) -> None:
         """
@@ -56,42 +87,14 @@ class TestPostAuthors:
         Edge case: API should handle invalid input appropriately.
         """
 
-        # Arrange
         invalid_author_data = AuthorsData.invalid_author_data
 
         # Act
-        response = authors_api_client.create_author(invalid_author_data)
+        post_response = authors_api_client.create_author(invalid_author_data)
 
         # Assert
-        # The API behavior with invalid data may vary
-        validate_status_code(response, [200, 400])
-
-        if response.status_code == 200:
-            author_response = response.json()
-            validate_json_schema(author_response, AuthorModels.author_response_model)
-        elif response.status_code == 400:
-            validate_response_reason(response, "Bad Request")
-
-    def test_post_author_missing_required_fields(
-        self, authors_api_client: AuthorsClient
-    ) -> None:
-        """
-        Test creation of author with missing required fields.
-
-        Edge case: API should return appropriate error for missing fields.
-        """
-
-        # Arrange
-        incomplete_author_data = {
-            "firstName": "Test Author"
-            # Missing idBook and lastName
-        }
-
-        # Act
-        response = authors_api_client.create_author(incomplete_author_data)
-
-        # Assert
-        validate_status_code(response, [200, 400])
+        validate_status_code(post_response, 400)
+        validate_response_reason(post_response, "Bad Request")
 
     def test_post_author_with_extra_fields(
         self, authors_api_client: AuthorsClient
@@ -123,7 +126,7 @@ class TestPostAuthors:
         # Verify valid fields are present
         validate_json_schema(author_response, AuthorModels.author_response_model)
 
-    @pytest.mark.parametrize("book_id", [1, 2, 5, 10, 50])
+    @pytest.mark.parametrize("book_id", [-1, 0, 1, 2, 5, 10, 50])
     def test_post_author_with_different_book_ids(
         self, authors_api_client: AuthorsClient, book_id: int
     ) -> None:

@@ -53,13 +53,22 @@ def validate_json_schema(json_data: dict, schema: dict) -> None:
     logging.info("JSON validation successful")
 
 
-def validate_json_data(json_data: dict, expected_data: dict) -> None:
+def validate_json_data(
+    json_data: dict, expected_data: dict, exact_key_match: bool = False
+) -> None:
     """
     Validate that the JSON data matches the expected data.
+
+    If `exact_match` is True, the number of keys must match exactly.
     """
     logging.info("Validating JSON data against expected data")
     logging.info("  JSON data: %s", json_data)
     logging.info("  Expected data: %s", expected_data)
+
+    if exact_key_match:
+        assert len(json_data) == len(
+            expected_data
+        ), f"Number of keys mismatch: {len(json_data)} != {len(expected_data)}"
 
     for key, value in expected_data.items():
         assert (
