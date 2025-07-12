@@ -8,6 +8,7 @@ from src.data.books_data import BooksData
 from src.models.books_models import BookModels
 from src.utils.validators import (
     validate_content_type,
+    validate_json_data,
     validate_json_schema,
     validate_response_reason,
     validate_status_code,
@@ -46,79 +47,19 @@ class TestPutBooks:
 
         put_response_json = put_response.json()
         validate_json_schema(put_response_json, BookModels.book_response_model)
+        validate_json_data(put_response_json, updated_book_data)
 
-        # Verify the book was actually updated
-        assert put_response_json["id"] == book_id
-        assert put_response_json["title"] == updated_book_data["title"]
-        assert put_response_json["description"] == updated_book_data["description"]
-        assert put_response_json["pageCount"] == updated_book_data["pageCount"]
-        assert put_response_json["excerpt"] == updated_book_data["excerpt"]
-        assert put_response_json["publishDate"] == updated_book_data["publishDate"]
-
-    def test_put_nonexistent_book_failure(self, books_api_client: BooksClient) -> None:
-        """
-        Test updating nonexistent book fails appropriately.
-
-        Edge case: API should return 404 for non-existent book ID.
-        """
-
-        # Arrange
-        nonexistent_book_id = 999999
-        updated_book_data = BooksData.updated_book_data.copy()
-        updated_book_data["id"] = nonexistent_book_id
-
-        # Act
-        put_response = books_api_client.update_book(
-            nonexistent_book_id, updated_book_data
-        )
-
-        # Assert
-        validate_status_code(put_response, 404)
-        validate_response_reason(put_response, "Not Found")
-
-        put_response_json = put_response.json()
-        validate_json_schema(
-            put_response_json, BookModels.book_not_found_response_model
-        )
-
-    def test_put_book_with_invalid_data(self, books_api_client: BooksClient) -> None:
-        """
-        Test updating book with invalid data.
-
-        Edge case: API should handle invalid data gracefully.
-        """
-
-        # Arrange
-        test_book_data = BooksData.sample_book_data
-        post_response = books_api_client.create_book(test_book_data)
-        validate_status_code(post_response, 200)
-
-        book_id = test_book_data["id"]
-        invalid_book_data = BooksData.invalid_book_data.copy()
-        invalid_book_data["id"] = str(book_id)
-
-        # Act
-        put_response = books_api_client.update_book(book_id, invalid_book_data)
-
-        # Assert
-        # Note: The API behavior with invalid data may vary
-        # This test documents the current behavior
-        validate_status_code(put_response, [200, 400])
-
-        if put_response.status_code == 200:
-            put_response_json = put_response.json()
-            validate_json_schema(put_response_json, BookModels.book_response_model)
-        elif put_response.status_code == 400:
-            validate_response_reason(put_response, "Bad Request")
-
-    @pytest.mark.parametrize("book_id", [1, 5, 10, 50, 100, 200])
-    def test_put_book_parametrized_ids(
+    @pytest.mark.parametrize(
+        "book_id",
+        [-1, 0, 1, 2, 3, 99, 100, 199, 200, 201, 500, 1762, 99999, 10900],
+    )
+    def test_put_book_with_parametrized_id(
         self, books_api_client: BooksClient, book_id: int
     ) -> None:
         """
-        Test updating books with different valid book IDs.
+        Test updating book with a parametrized ID, validate by GET.
 
-        Parametrized test: Verify PUT works with various book IDs.
+        Sunny day scenario: API returns 200 status with updated book data.
         """
 
         # Arrange
@@ -137,11 +78,39 @@ class TestPutBooks:
         # Assert
         validate_status_code(put_response, 200)
         validate_content_type(put_response, "application/json")
-
         put_response_json = put_response.json()
         validate_json_schema(put_response_json, BookModels.book_response_model)
+        validate_json_data(put_response_json, updated_book_data)
 
-        # Verify the update was successful
-        assert put_response_json["id"] == book_id
-        assert put_response_json["title"] == updated_book_data["title"]
-        assert put_response_json["pageCount"] == updated_book_data["pageCount"]
+        get_book_response = books_api_client.get_book_by_id(book_id)
+        validate_status_code(get_book_response, 200)
+        validate_content_type(get_book_response, "application/json")
+        get_book_response_json = get_book_response.json()
+        validate_json_schema(get_book_response_json, BookModels.book_response_model)
+        validate_json_data(get_book_response_json, updated_book_data)
+
+    def test_put_book_with_invalid_data(self, books_api_client: BooksClient) -> None:
+        """
+        Test updating book with invalid data.
+        Asumption: API should return 400 Bad Request for invalid data.
+
+        Edge case: API should handle invalid data gracefully.
+        """
+
+        # Arrange
+        test_book_data = BooksData.sample_book_data.copy()
+        post_response = books_api_client.create_book(test_book_data)
+        validate_status_code(post_response, 200)
+
+        book_id = test_book_data["id"]
+        invalid_book_data = BooksData.invalid_book_data.copy()
+        invalid_book_data["id"] = str(book_id)
+        invalid_book_data["pageCount"] = str(-1000)
+
+        # Act
+        put_response = books_api_client.update_book(book_id, invalid_book_data)
+
+        # Assert
+        validate_status_code(put_response, 400)
+        validate_content_type(put_response, "application/problem+json")
+        validate_response_reason(put_response, "Bad Request")

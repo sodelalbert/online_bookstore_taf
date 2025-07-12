@@ -53,6 +53,22 @@ def validate_json_schema(json_data: dict, schema: dict) -> None:
     logging.info("JSON validation successful")
 
 
+def validate_json_data(json_data: dict, expected_data: dict) -> None:
+    """
+    Validate that the JSON data matches the expected data.
+    """
+    logging.info("Validating JSON data against expected data")
+    logging.info("  JSON data: %s", json_data)
+    logging.info("  Expected data: %s", expected_data)
+
+    for key, value in expected_data.items():
+        assert (
+            json_data.get(key) == value
+        ), f"Mismatch for key '{key}': {json_data.get(key)} != {value}"
+
+    logging.info("JSON data validation successful")
+
+
 def validate_elapsed_time(response: Response, max_seconds: float) -> None:
     """
     Validate that the response time is within the acceptable limit.
