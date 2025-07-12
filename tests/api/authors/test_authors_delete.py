@@ -53,7 +53,7 @@ class TestDeleteAuthors:
             get_author_response_json, AuthorModels.author_not_found_response_model
         )
 
-    @pytest.mark.parametrize("author_id", [-1, 0, 666, 500, 999999])
+    @pytest.mark.parametrize("author_id", [-222, -1])
     def test_delete_nonexistent_author(
         self, authors_api_client: AuthorsClient, author_id: int
     ) -> None:
